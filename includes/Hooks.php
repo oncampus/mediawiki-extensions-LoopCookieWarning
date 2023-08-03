@@ -77,7 +77,7 @@ class Hooks implements
 			return;
 		}
 
-		$data .= self::generateElements( $skin );
+		echo self::generateElements( $skin );
 	}
 
 	/**
