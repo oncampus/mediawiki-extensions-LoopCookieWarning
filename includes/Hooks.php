@@ -43,19 +43,20 @@ class Hooks implements
 	 * @param MediaWiki $mediawiki
 	 * @throws MWException
 	 */
-	public function onBeforeInitialize( $title, $unused, $output, $user, $request, $mediawiki ) {
-		if ( !$request->wasPosted() || !$request->getVal( 'disablecookiewarning' ) ) {
+	public function onBeforeInitialize($title, $unused, $output, $user, $request, $mediawiki)
+	{
+		if (!$request->wasPosted() || !$request->getVal('disablecookiewarning')) {
 			return;
 		}
 
-		if ( $user->isRegistered() ) {
+		if ($user->isRegistered()) {
 			$userOptionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
-			$userOptionsManager->setOption( $user, 'cookiewarning_dismissed', 1 );
-			$userOptionsManager->saveOptions( $user );
+			$userOptionsManager->setOption($user, 'cookiewarning_dismissed', 1);
+			$userOptionsManager->saveOptions($user);
 		} else {
-			$request->response()->setCookie( 'cookiewarning_dismissed', true );
+			$request->response()->setCookie('cookiewarning_dismissed', true);
 		}
-		$output->redirect( $request->getRequestURL() );
+		$output->redirect($request->getRequestURL());
 	}
 
 	/**
@@ -68,16 +69,17 @@ class Hooks implements
 	 *
 	 * @throws MWException
 	 */
-	public function onSkinAfterContent( &$data, $skin ) {
+	public function onSkinAfterContent(&$data, $skin)
+	{
 		/** @var Decisions $cookieWarningDecisions */
 		$cookieWarningDecisions = MediaWikiServices::getInstance()
-			->getService( 'CookieWarning.Decisions' );
+			->getService('CookieWarning.Decisions');
 
-		if ( !$cookieWarningDecisions->shouldShowCookieWarning( $skin->getContext() ) ) {
+		if (!$cookieWarningDecisions->shouldShowCookieWarning($skin->getContext())) {
 			return;
 		}
 
-		echo self::generateElements( $skin );
+		echo self::generateElements($skin);
 	}
 
 	/**
@@ -86,47 +88,59 @@ class Hooks implements
 	 * @param Skin $skin
 	 * @return string|null The html for cookie notice.
 	 */
-	private static function generateElements( Skin $skin ): ?string {
+	private static function generateElements(Skin $skin): ?string
+	{
 		$moreLink = self::getMoreLink();
 
 		$buttons = [];
-		if ( $moreLink ) {
-			$buttons[] = new ButtonWidget( [
+		/*
+		if ($moreLink) {
+			$buttons[] = new ButtonWidget([
 				'href' => $moreLink,
-				'label' => $skin->msg( 'cookiewarning-moreinfo-label' )->text(),
-				'flags' => [ 'progressive' ]
-			] );
+				'label' => $skin->msg('cookiewarning-moreinfo-label')->text(),
+				'flags' => ['progressive']
+			]);
 		}
-		$buttons[] = new ButtonInputWidget( [
+		*/
+		$buttons[] = new ButtonInputWidget([
+			// 'type' => 'submit',
+			'label' => $skin->msg('cookiewarning-info-label')->text(),
+			'name' => 'showcookieinfo',
+			'value' => 'More',
+			'flags' => ['primary', 'progressive'],
+			'classes' => ['cookiewarning-more']
+		]);
+		$buttons[] = new ButtonInputWidget([
 			'type' => 'submit',
-			'label' => $skin->msg( 'cookiewarning-ok-label' )->text(),
+			'label' => $skin->msg('cookiewarning-ok-label')->text(),
 			'name' => 'disablecookiewarning',
 			'value' => 'OK',
-			'flags' => [ 'primary', 'progressive' ]
-		] );
+			'flags' => ['primary', 'progressive'],
+			'classes' => ['cookiewarning-ok']
+		]);
 
 		$form = Html::rawElement(
 			'form',
-			[ 'method' => 'POST' ],
-			new HorizontalLayout( [ 'items' => $buttons ] )
+			['method' => 'POST'],
+			new HorizontalLayout(['items' => $buttons])
 		);
 
 		return Html::openElement(
-				'div',
-				[ 'class' => 'mw-cookiewarning-container' ]
-			) .
+			'div',
+			['class' => 'mw-cookiewarning-container']
+		) .
 			Html::openElement(
 				'div',
-				[ 'class' => 'mw-cookiewarning-text' ]
+				['class' => 'mw-cookiewarning-text']
 			) .
 			Html::element(
 				'span',
 				[],
-				$skin->msg( 'cookiewarning-info' )->text()
+				$skin->msg('cookiewarning-info')->text()
 			) .
-			Html::closeElement( 'div' ) .
+			Html::closeElement('div') .
 			$form .
-			Html::closeElement( 'div' );
+			Html::closeElement('div');
 	}
 
 	/**
@@ -139,19 +153,20 @@ class Hooks implements
 	 * @return string|null The url or null if none set
 	 * @throws ConfigException
 	 */
-	private static function getMoreLink(): ?string {
+	private static function getMoreLink(): ?string
+	{
 		$conf = self::getConfig();
-		if ( $conf->get( 'CookieWarningMoreUrl' ) ) {
-			return $conf->get( 'CookieWarningMoreUrl' );
+		if ($conf->get('CookieWarningMoreUrl')) {
+			return $conf->get('CookieWarningMoreUrl');
 		}
 
-		$cookieWarningMessage = wfMessage( 'cookiewarning-more-link' );
-		if ( $cookieWarningMessage->exists() && !$cookieWarningMessage->isDisabled() ) {
+		$cookieWarningMessage = wfMessage('cookiewarning-more-link');
+		if ($cookieWarningMessage->exists() && !$cookieWarningMessage->isDisabled()) {
 			return $cookieWarningMessage->text();
 		}
 
-		$cookiePolicyMessage = wfMessage( 'cookie-policy-link' );
-		if ( $cookiePolicyMessage->exists() && !$cookiePolicyMessage->isDisabled() ) {
+		$cookiePolicyMessage = wfMessage('cookie-policy-link');
+		if ($cookiePolicyMessage->exists() && !$cookiePolicyMessage->isDisabled()) {
 			return $cookiePolicyMessage->text();
 		}
 
@@ -168,24 +183,25 @@ class Hooks implements
 	 * @throws ConfigException
 	 * @throws MWException
 	 */
-	public function onBeforePageDisplay( $out, $skin ): void {
+	public function onBeforePageDisplay($out, $skin): void
+	{
 		/** @var Decisions $cookieWarningDecisions */
 		$cookieWarningDecisions = MediaWikiServices::getInstance()
-			->getService( 'CookieWarning.Decisions' );
+			->getService('CookieWarning.Decisions');
 
-		if ( !$cookieWarningDecisions->shouldShowCookieWarning( $out->getContext() ) ) {
+		if (!$cookieWarningDecisions->shouldShowCookieWarning($out->getContext())) {
 			return;
 		}
 
-		$modules = [ 'ext.CookieWarning' ];
-		$moduleStyles = [ 'ext.CookieWarning.styles' ];
+		$modules = ['ext.CookieWarning'];
+		$moduleStyles = ['ext.CookieWarning.styles'];
 
-		if ( $cookieWarningDecisions->shouldAddResourceLoaderComponents() ) {
+		if ($cookieWarningDecisions->shouldAddResourceLoaderComponents()) {
 			$modules[] = 'ext.CookieWarning.geolocation';
 			$moduleStyles[] = 'ext.CookieWarning.geolocation.styles';
 		}
-		$out->addModules( $modules );
-		$out->addModuleStyles( $moduleStyles );
+		$out->addModules($modules);
+		$out->addModuleStyles($moduleStyles);
 		$out->enableOOUI();
 	}
 
@@ -198,16 +214,17 @@ class Hooks implements
 	 *
 	 * @throws ConfigException
 	 */
-	public function onResourceLoaderGetConfigVars( array &$vars, $skin, Config $config ): void {
+	public function onResourceLoaderGetConfigVars(array &$vars, $skin, Config $config): void
+	{
 		/** @var Decisions $cookieWarningDecisions */
 		$cookieWarningDecisions = MediaWikiServices::getInstance()
-			->getService( 'CookieWarning.Decisions' );
+			->getService('CookieWarning.Decisions');
 		$conf = self::getConfig();
 
-		if ( $cookieWarningDecisions->shouldAddResourceLoaderComponents() ) {
+		if ($cookieWarningDecisions->shouldAddResourceLoaderComponents()) {
 			$vars += [
-				'wgCookieWarningGeoIPServiceURL' => $conf->get( 'CookieWarningGeoIPServiceURL' ),
-				'wgCookieWarningForCountryCodes' => $conf->get( 'CookieWarningForCountryCodes' ),
+				'wgCookieWarningGeoIPServiceURL' => $conf->get('CookieWarningGeoIPServiceURL'),
+				'wgCookieWarningForCountryCodes' => $conf->get('CookieWarningForCountryCodes'),
 			];
 		}
 	}
@@ -217,8 +234,9 @@ class Hooks implements
 	 *
 	 * @return Config
 	 */
-	private static function getConfig(): Config {
-		return MediaWikiServices::getInstance()->getService( 'CookieWarning.Config' );
+	private static function getConfig(): Config
+	{
+		return MediaWikiServices::getInstance()->getService('CookieWarning.Config');
 	}
 
 	/**
@@ -230,7 +248,8 @@ class Hooks implements
 	 * @param array &$defaultPreferences
 	 * @return bool
 	 */
-	public function onGetPreferences( $user, &$defaultPreferences ): bool {
+	public function onGetPreferences($user, &$defaultPreferences): bool
+	{
 		$defaultPreferences['cookiewarning_dismissed'] = [
 			'type' => 'api',
 			'default' => '0',

@@ -1,13 +1,13 @@
 {
-	"@metadata": {
-		"authors": [
-			"Florian Schmidt",
-			"Kghbln",
-			"Metalhead64"
-		]
-	},
-	"cookiewarning-info": "Cookies helfen uns bei der Bereitstellung von {{SITENAME}}. Durch die Nutzung von {{SITENAME}} erklärst du dich damit einverstanden, dass wir Cookies speichern.",
-	"cookiewarning-desc": "Blendet einen Hinweis zur Verwendung von Cookies beim Besuch des Wikis ein",
-	"cookiewarning-moreinfo-label": "Weitere Informationen",
-	"cookiewarning-ok-label": "Okay"
+  "@metadata": {
+    "authors": ["Florian Schmidt", "Kghbln", "Metalhead64"]
+  },
+  "cookiewarning-info": "Cookies helfen uns bei der Bereitstellung von {{SITENAME}}. Durch die Nutzung von {{SITENAME}} erklärst du dich damit einverstanden, dass wir Cookies speichern.",
+  "cookiewarning-desc": "Blendet einen Hinweis zur Verwendung von Cookies beim Besuch des Wikis ein",
+  "cookiewarning-moreinfo-label": "Weitere Informationen",
+  "cookiewarning-ok-label": "Okay",
+  "cookiewarning-info-label": "Informationen",
+  "cookiewarning-dialog-informations": "Hier steht der ganze Informationskram über KeKsE von {{SITENAME}}",
+  "cookiewarning-dialog-header": "Weitere Cookieinfos",
+  "cookiewarning-dialog-dismiss": "Verstanden"
 }
